@@ -50,9 +50,9 @@ def get_recent_news():
     return {"data": [dict(row) for row in data]}
 
 
-@app.get('/api/news/filter')
-def get_news_by_sentiment():
-    threshold = 0.5
+@app.get('/api/news/sentiment_score_filter')
+def get_news_by_sentiment(sentiment_score_filter: float):
+    threshold = sentiment_score_filter
     conn = models.get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM NewsData WHERE sentiment_score >= ?", (threshold,))
