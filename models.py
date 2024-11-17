@@ -84,22 +84,22 @@ def init_db():
         CREATE TABLE IF NOT EXISTS DataTags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             tag TEXT,
-            dataset TEXT
+            dataset TEXT,
+            metadata TEXT
         )
     ''')
 
     data = [
-        ("gold", "GoldPrices"),
-        ("commodities", "GoldPrices"),
-        ("stocks", "IntradayData"),
-        ("equities", "IntradayData"),
-        ("apple", "IntradayData"),
-        ("news", "NewsData")
+        ("gold", "GoldPrices", "[gold commodities inflation]"),
+        ("stocks", "IntradayData", "[equities shares intraday]"),
+        ("equities", "IntradayData", "[equities shares intraday]"),
+        ("apple", "IntradayData", "[apple, equities shares intraday]"),
+        ("news", "NewsData", "[news sentiment twitter]")
     ]
 
     # Insert data into MyTable
     cursor.executemany('''
-        INSERT INTO DataTags (tag, dataset) VALUES (?, ?)
+        INSERT INTO DataTags (tag, dataset, metadata) VALUES (?, ?, ?)
     ''', data)
 
     conn.commit()

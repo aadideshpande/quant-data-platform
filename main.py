@@ -3,7 +3,8 @@ from fastapi import FastAPI
 import models
 from datetime import datetime, timedelta
 
-from DataCatalog import DataCatalog
+from DataCatalog import DataCatalog, DataTag
+from DataLake import DataLake
 
 # from flask import jsonify, request
 
@@ -67,7 +68,7 @@ def aggregate_intraday_data():
     return {"data": aggregated_data}
 
 
-@app.get('/api/data/list')
+@app.get('/api/db/list')
 def get_data_list():
     conn = models.get_db_connection()
     cursor = conn.cursor()
@@ -77,12 +78,24 @@ def get_data_list():
     return {"data": tables}
 
 
-@app.get('/api/datasets/list')
-def get_datasets_list():
-    conn = models.get_db_connection()
-    cursor = conn.cursor()
-    data_catalog = DataCatalog(cursor)
-    return data_catalog.get_dataset_tag('gold')
+@app.get('/api/datasets/{tag_name}')
+def get_dataset_based_on_tag_name(tag_name):
+    data_catalog = DataCatalog()
+    data_lake = DataLake()
+    return data_catalog.get_dataset_tag(tag_name, data_lake)
+
+
+@app.get('/api/data/filtered_data')
+def get_filtered_date():
+    data_lake = DataLake()
+    return data_lake.get_data_filtered('NewsData', datetime.now() - timedelta(days=1)).isoformat()
+
+
+@app.get('/api/advanced_search/')
+def get_advanced_search(search_term):
+    data_catalog = DataCatalog()
+    data_lake = DataLake()
+    return data_catalog.get_advanced_search_datasets(search_term, data_lake)
 
 
 if __name__ == "__main__":
