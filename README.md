@@ -15,3 +15,9 @@ Create dummy data
 
 **security.py:**
 Implement the authentication mechanism for users to access proprietary data
+
+**How to test authorization?**
+
+1) Try using the /proprietary-info endpoint
+2) Click on the "Authorize" on the top-right and enter username: **johndoe** and password: **secret**
+3) Try using the same endpoint again
