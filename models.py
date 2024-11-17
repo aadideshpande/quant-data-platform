@@ -102,6 +102,85 @@ def init_db():
         INSERT INTO DataTags (tag, dataset, metadata) VALUES (?, ?, ?)
     ''', data)
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ClientTransactions (
+            transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_id INTEGER,
+            transaction_date TEXT,
+            transaction_amount REAL,
+            transaction_type TEXT
+        )
+    ''')
+
+    # Create StockHoldings table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS StockHoldings (
+            holding_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_id INTEGER,
+            stock_symbol TEXT,
+            quantity INTEGER,
+            purchase_price REAL,
+            purchase_date TEXT
+        )
+    ''')
+
+    # Create RiskAssessments table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS RiskAssessments (
+            assessment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_id INTEGER,
+            risk_score INTEGER,
+            liquidity_ratio REAL,
+            leverage_ratio REAL,
+            credit_rating TEXT
+        )
+    ''')
+
+    # Commit the table creation
+    conn.commit()
+
+    # Step 3: Populate the Tables with Dummy Data
+
+    # Generate some sample client IDs
+    client_ids = [101, 102, 103, 104, 105]
+
+    # Populate ClientTransactions table with dummy data
+    transaction_types = ["deposit", "withdrawal", "purchase", "sale"]
+    for _ in range(50):  # 50 transactions
+        client_id = random.choice(client_ids)
+        transaction_date = (datetime.now() - timedelta(days=random.randint(1, 365))).isoformat()
+        transaction_amount = round(random.uniform(1000, 50000), 2)
+        transaction_type = random.choice(transaction_types)
+        cursor.execute('''
+            INSERT INTO ClientTransactions (client_id, transaction_date, transaction_amount, transaction_type)
+            VALUES (?, ?, ?, ?)
+        ''', (client_id, transaction_date, transaction_amount, transaction_type))
+
+    # Populate StockHoldings table with dummy data
+    stock_symbols = ["AAPL", "TSLA", "GOOGL", "AMZN", "MSFT"]
+    for _ in range(30):  # 30 stock holdings
+        client_id = random.choice(client_ids)
+        stock_symbol = random.choice(stock_symbols)
+        quantity = random.randint(10, 200)
+        purchase_price = round(random.uniform(100, 1500), 2)
+        purchase_date = (datetime.now() - timedelta(days=random.randint(1, 730))).isoformat()  # Up to 2 years ago
+        cursor.execute('''
+            INSERT INTO StockHoldings (client_id, stock_symbol, quantity, purchase_price, purchase_date)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (client_id, stock_symbol, quantity, purchase_price, purchase_date))
+
+    # Populate RiskAssessments table with dummy data
+    credit_ratings = ["AAA", "AA", "A", "BBB", "BB", "B", "CCC"]
+    for client_id in client_ids:
+        risk_score = random.randint(1, 100)
+        liquidity_ratio = round(random.uniform(0.5, 2.0), 2)
+        leverage_ratio = round(random.uniform(0.1, 1.5), 2)
+        credit_rating = random.choice(credit_ratings)
+        cursor.execute('''
+            INSERT INTO RiskAssessments (client_id, risk_score, liquidity_ratio, leverage_ratio, credit_rating)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (client_id, risk_score, liquidity_ratio, leverage_ratio, credit_rating))
+
     conn.commit()
     conn.close()
 

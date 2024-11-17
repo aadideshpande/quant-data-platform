@@ -1,20 +1,28 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 import models
 from datetime import datetime, timedelta
-
-from DataCatalog import DataCatalog, DataTag
+from DataCatalog import DataCatalog
 from DataLake import DataLake
+from fastapi.security import OAuth2PasswordBearer
+from security import router as security_router, has_permission
 
-# from flask import jsonify, request
 
 app = FastAPI()
 models.init_db()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+app.include_router(security_router)
 
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+@app.get("/api/proprietary-info")
+async def get_proprietary_info(user: dict = Depends(has_permission(["prop_view"]))):
+    data_lake = DataLake()
+    return data_lake.get_data('StockHoldings')
 
 
 @app.get('/api/intraday/recent')

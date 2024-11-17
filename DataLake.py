@@ -1,5 +1,6 @@
 import models
 
+
 class DataLake:
     def __init__(self):
         conn = models.get_db_connection()
@@ -7,7 +8,8 @@ class DataLake:
         self.cursor = cursor
 
     def get_data(self, data_set):
-        self.cursor.execute('SELECT * FROM ?', (data_set,))
+        query = f'SELECT * FROM {data_set}'
+        self.cursor.execute(query)
         rows = self.cursor.fetchall()
         return rows
 
