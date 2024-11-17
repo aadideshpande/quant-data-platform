@@ -94,7 +94,7 @@ def init_db():
         ("stocks", "IntradayData", "[equities shares intraday]"),
         ("equities", "IntradayData", "[equities shares intraday]"),
         ("apple", "IntradayData", "[apple, equities shares intraday]"),
-        ("news", "NewsData", "[news sentiment twitter]")
+        ("news", "NewsData", "[news sentiment twitter x politics]")
     ]
 
     # Insert data into MyTable

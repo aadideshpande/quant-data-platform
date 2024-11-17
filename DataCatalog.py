@@ -47,7 +47,7 @@ class DataCatalog:
         records = [DataTag.from_row(row) for row in rows]
         unique_data_sets = set()
         for record in records:
-            if set(keywords_list).intersection(record.metadata.strip("[]").split()) is not None:
+            if len(set(keywords_list).intersection(record.metadata.strip("[]").split())) != 0:
                 unique_data_sets.add(record.dataset)
         return unique_data_sets
 
