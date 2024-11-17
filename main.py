@@ -6,6 +6,7 @@ from DataCatalog import DataCatalog
 from DataLake import DataLake
 from fastapi.security import OAuth2PasswordBearer
 from security import router as security_router, has_permission
+from helper_classes import Body
 
 
 app = FastAPI()
@@ -104,6 +105,14 @@ def get_advanced_search(search_term):
     data_catalog = DataCatalog()
     data_lake = DataLake()
     return data_catalog.get_advanced_search_datasets(search_term, data_lake)
+
+
+@app.post('/api/advanced_sentence_search/')
+def get_advanced_search(body: Body):
+    data_catalog = DataCatalog()
+    data_lake = DataLake()
+    return data_catalog.get_advanced_sentence_search(body, data_lake)
+    # return {"error_message": "An unexpected error occurred"}
 
 
 if __name__ == "__main__":

@@ -1,3 +1,6 @@
+from keybert import KeyBERT
+
+
 class DataTag:
     def __init__(self, id, tag, dataset, metadata):
         self.id = id
@@ -33,5 +36,22 @@ class DataCatalog:
         records = [DataTag.from_row(row) for row in rows]
         unique_data_sets = set([record.dataset for record in records if search_term in record.metadata.strip("[]").split()])
         return unique_data_sets
+
+    @staticmethod
+    def get_advanced_sentence_search(body, data_lake):
+        model = KeyBERT('distilbert-base-nli-mean-tokens')
+        keywords = model.extract_keywords(body.sentence)
+        keywords_list = [item[0] for item in keywords[:min(5, len(keywords))]]
+        data_lake.cursor.execute('SELECT * FROM DataTags')
+        rows = data_lake.cursor.fetchall()
+        records = [DataTag.from_row(row) for row in rows]
+        unique_data_sets = set()
+        for record in records:
+            if set(keywords_list).intersection(record.metadata.strip("[]").split()) is not None:
+                unique_data_sets.add(record.dataset)
+        return unique_data_sets
+
+
+
 
 
