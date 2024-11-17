@@ -1,5 +1,5 @@
 from keybert import KeyBERT
-
+from DataModel import IntradayDataModel
 
 class DataTag:
     def __init__(self, id, tag, dataset, metadata):
@@ -20,6 +20,14 @@ class DataTag:
 class DataCatalog:
     def __init__(self):
         pass
+
+    @staticmethod
+    def get_intraday_data(data_lake, symbol):
+        data_lake.cursor.execute('SELECT * FROM IntradayData')
+        rows = data_lake.cursor.fetchall()
+        records = [IntradayDataModel.from_row(row) for row in rows]
+        symbol_filtered_data = set([record for record in records if record.symbol == symbol and record.is_recent(0)])
+        return symbol_filtered_data
 
     @staticmethod
     def get_dataset_tag(tag, data_lake):

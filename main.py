@@ -7,7 +7,14 @@ from DataLake import DataLake
 from fastapi.security import OAuth2PasswordBearer
 from security import router as security_router, has_permission
 from helper_classes import Body
+import os
 
+db_path = 'data.db'
+if os.path.exists(db_path):
+    os.remove(db_path)
+    print(f"Database '{db_path}' existed and has been deleted.")
+else:
+    print(f"Database '{db_path}' does not exist.")
 
 app = FastAPI()
 models.init_db()
@@ -26,16 +33,11 @@ async def get_proprietary_info(user: dict = Depends(has_permission(["prop_view"]
     return data_lake.get_data('StockHoldings')
 
 
-@app.get('/api/intraday/recent')
-def get_recent_intraday_data():
-    days = 1
-    recent_timestamp = (datetime.now() - timedelta(days=days)).isoformat()
-    conn = models.get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM IntradayData WHERE timestamp >= ?", (recent_timestamp,))
-    data = cursor.fetchall()
-    conn.close()
-    return {"data": [dict(row) for row in data]}
+@app.get('/api/intraday/recent/{symbol}')
+def get_recent_intraday_data(symbol):
+    data_catalog = DataCatalog()
+    data_lake = DataLake()
+    return data_catalog.get_intraday_data(data_lake, symbol)
 
 
 @app.get('/api/news/recent')

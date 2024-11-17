@@ -36,9 +36,26 @@ def init_db():
         )
     ''')
 
-    # Insert dummy data
-    cursor.execute("INSERT INTO IntradayData (timestamp, price, volume, symbol) VALUES (?, ?, ?, ?)",
-                   (datetime.now().isoformat(), 100.5, 1500, 'AAPL'))
+    stock_symbols = ["TSLA", "GOOGL", "AMZN", "MSFT"]
+
+    # Generate and insert dummy data
+    num_entries_per_stock = 10  # Number of entries per stock symbol
+    base_time = datetime.now()
+
+    for symbol in stock_symbols:
+        for i in range(num_entries_per_stock):
+            # Generate a timestamp for each entry, spaced 5 minutes apart
+            timestamp = (base_time - timedelta(minutes=i * 5)).isoformat()
+            # Generate a random price between 100 and 1500
+            price = round(random.uniform(100, 1500), 2)
+            # Generate a random volume between 1000 and 5000
+            volume = random.randint(1000, 5000)
+
+            # Insert the generated data into the IntradayData table
+            cursor.execute('''
+                INSERT INTO IntradayData (timestamp, price, volume, symbol)
+                VALUES (?, ?, ?, ?)
+            ''', (timestamp, price, volume, symbol))
 
     news_data = [
         (datetime.now().isoformat(), "Apple releases new product", 0.8, 0.9, "Reuters"),
