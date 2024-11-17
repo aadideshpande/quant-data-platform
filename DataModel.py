@@ -49,3 +49,27 @@ class NewsDataModel(BaseDataModel):
 
     def filter_by_sentiment(self, threshold):
         return self.is_above_threshold(self.sentiment_score, threshold)
+
+class EconomicIndicatorDataModel(BaseDataModel):
+    def __init__(self, country, indicator_name, date, value, unit):
+        super().__init__(date)  # Pass date to BaseDataModel as timestamp
+        self.country = country
+        self.indicator_name = indicator_name
+        self.value = value
+        self.unit = unit
+
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            country=row[1],
+            indicator_name=row[2],
+            date=row[3],
+            value=row[4],
+            unit=row[5]
+        )
+
+    def __repr__(self):
+        return f"EconomicIndicator({self.country}, {self.indicator_name}, Value: {self.value} {self.unit})"
+
+    def is_above_threshold(self, threshold):
+        return super().is_above_threshold(self.value, threshold)

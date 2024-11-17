@@ -106,6 +106,63 @@ def init_db():
         )
     ''')
 
+    # Create EconomicIndicators table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS EconomicIndicators (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            country TEXT NOT NULL,
+            indicator_name TEXT NOT NULL,
+            date TEXT NOT NULL,
+            value REAL NOT NULL,
+            unit TEXT NOT NULL
+        )
+    ''')
+
+    # Sample economic indicator data
+    current_date = datetime.now().isoformat()
+    economic_data = [
+        # GDP Growth Rate Data
+        ('USA', 'GDP Growth Rate', current_date, 2.5, '%'),
+        ('EUR', 'GDP Growth Rate', current_date, 1.8, '%'),
+        ('JPN', 'GDP Growth Rate', current_date, 1.2, '%'),
+        ('GBR', 'GDP Growth Rate', current_date, 1.9, '%'),
+        ('CHN', 'GDP Growth Rate', current_date, 5.2, '%'),
+        
+        # Inflation Rate Data
+        ('USA', 'Inflation Rate', current_date, 3.1, '%'),
+        ('EUR', 'Inflation Rate', current_date, 2.8, '%'),
+        ('JPN', 'Inflation Rate', current_date, 2.0, '%'),
+        ('GBR', 'Inflation Rate', current_date, 4.0, '%'),
+        ('CHN', 'Inflation Rate', current_date, 2.3, '%'),
+        
+        # Unemployment Rate Data
+        ('USA', 'Unemployment Rate', current_date, 3.7, '%'),
+        ('EUR', 'Unemployment Rate', current_date, 6.5, '%'),
+        ('JPN', 'Unemployment Rate', current_date, 2.5, '%'),
+        ('GBR', 'Unemployment Rate', current_date, 4.2, '%'),
+        ('CHN', 'Unemployment Rate', current_date, 5.0, '%'),
+        
+        # Interest Rate Data
+        ('USA', 'Interest Rate', current_date, 5.50, '%'),
+        ('EUR', 'Interest Rate', current_date, 4.50, '%'),
+        ('JPN', 'Interest Rate', current_date, -0.10, '%'),
+        ('GBR', 'Interest Rate', current_date, 5.25, '%'),
+        ('CHN', 'Interest Rate', current_date, 3.45, '%'),
+        
+        # Trade Balance Data (in billions USD)
+        ('USA', 'Trade Balance', current_date, -62.2, 'B USD'),
+        ('EUR', 'Trade Balance', current_date, 23.5, 'B USD'),
+        ('JPN', 'Trade Balance', current_date, -8.2, 'B USD'),
+        ('GBR', 'Trade Balance', current_date, -15.4, 'B USD'),
+        ('CHN', 'Trade Balance', current_date, 70.2, 'B USD')
+    ]
+
+    cursor.executemany('''
+        INSERT INTO EconomicIndicators (country, indicator_name, date, value, unit)
+        VALUES (?, ?, ?, ?, ?)
+    ''', economic_data)
+
+    
     data = [
         ("gold", "GoldPrices", "[gold commodities inflation]"),
         ("stocks", "IntradayData", "[equities shares intraday]"),
