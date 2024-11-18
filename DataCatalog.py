@@ -1,5 +1,5 @@
 from keybert import KeyBERT
-from DataModel import IntradayDataModel
+from DataModel import IntradayDataModel, NewsDataModel
 
 class DataTag:
     def __init__(self, id, tag, dataset, metadata, source, origin_date, description):
@@ -24,6 +24,14 @@ class DataTag:
 class DataCatalog:
     def __init__(self):
         pass
+
+    @staticmethod
+    def get_sentiment_scored_news(data_lake, sentiment_score):
+        data_lake.cursor.execute('SELECT * FROM NewsData')
+        rows = data_lake.cursor.fetchall()
+        records = [NewsDataModel.from_row(row) for row in rows]
+        symbol_filtered_data = set([record for record in records if record.sentiment_score >= sentiment_score])
+        return symbol_filtered_data
 
     @staticmethod
     def get_intraday_data(data_lake, symbol):

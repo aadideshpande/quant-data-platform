@@ -42,7 +42,7 @@ def get_recent_intraday_data(symbol):
     return data_catalog.get_intraday_data(data_lake, symbol)
 
 
-@app.get('/api/news/recent')
+@app.get('/api/news/recent', deprecated=True)
 def get_recent_news():
     days = 5
     recent_timestamp = (datetime.now() - timedelta(days=days)).isoformat()
@@ -56,13 +56,9 @@ def get_recent_news():
 
 @app.get('/api/news/sentiment_score_filter')
 def get_news_by_sentiment(sentiment_score_filter: float):
-    threshold = sentiment_score_filter
-    conn = models.get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM NewsData WHERE sentiment_score >= ?", (threshold,))
-    data = cursor.fetchall()
-    conn.close()
-    return {"data": [dict(row) for row in data]}
+    data_catalog = DataCatalog()
+    data_lake = DataLake()
+    return data_catalog.get_sentiment_scored_news(data_lake, sentiment_score_filter)
 
 @app.get("/api/get-stock-data")
 async def get_stock_data(
@@ -124,7 +120,7 @@ async def get_stock_data(
             "message": "Failed to fetch or store data"
         }
 
-@app.get('/api/intraday/aggregate')
+@app.get('/api/intraday/aggregate', deprecated=True)
 def aggregate_intraday_data():
     interval = 15
     symbol = 'APPL'
@@ -157,7 +153,7 @@ def get_dataset_based_on_tag_name(tag_name):
     return data_catalog.get_dataset_tag(tag_name, data_lake)
 
 
-@app.get('/api/data/filtered_data')
+@app.get('/api/data/filtered_data', deprecated=True)
 def get_filtered_date():
     data_lake = DataLake()
     return data_lake.get_data_filtered('NewsData', datetime.now() - timedelta(days=1)).isoformat()
