@@ -117,5 +117,15 @@ def get_advanced_search(body: Body):
     # return {"error_message": "An unexpected error occurred"}
 
 
+@app.get('/api/metadata')
+def get_database_metadata():
+    conn = models.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM DataTags;")
+    tables = cursor.fetchall()
+    conn.close()
+    return {"data": tables}
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

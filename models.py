@@ -102,7 +102,11 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             tag TEXT,
             dataset TEXT,
-            metadata TEXT
+            metadata TEXT,
+            source TEXT,
+            origin_date TEXT,
+            description TEXT
+            
         )
     ''')
 
@@ -162,18 +166,22 @@ def init_db():
         VALUES (?, ?, ?, ?, ?)
     ''', economic_data)
 
-    
     data = [
-        ("gold", "GoldPrices", "[gold commodities inflation]"),
-        ("stocks", "IntradayData", "[equities shares intraday]"),
-        ("equities", "IntradayData", "[equities shares intraday]"),
-        ("apple", "IntradayData", "[apple, equities shares intraday]"),
-        ("news", "NewsData", "[news sentiment twitter x politics]")
+        ("gold", "GoldPrices", "[gold commodities inflation]",
+         "yahoo", f'{datetime.now().date()}', "daily prices of gold"),
+        ("stocks", "IntradayData", "[equities shares intraday]",
+         "bloomberg", f'{datetime.now().date()}', "intraday data for stocks"),
+        ("equities", "IntradayData", "[equities shares intraday]",
+         "yahoo", f'{datetime.now().date()}', "intraday data for equities/stocks"),
+        ("apple", "IntradayData", "[apple, equities shares intraday]",
+         "iex", f'{datetime.now().date()}', "intraday data for tech stocks"),
+        ("news", "NewsData", "[news sentiment twitter x politics]",
+         "quandl", f'{datetime.now().date()}', "news headlines data for sentiment analysis"),
     ]
 
     # Insert data into MyTable
     cursor.executemany('''
-        INSERT INTO DataTags (tag, dataset, metadata) VALUES (?, ?, ?)
+        INSERT INTO DataTags (tag, dataset, metadata, source, origin_date, description) VALUES (?, ?, ?, ?, ?, ?)
     ''', data)
 
     cursor.execute('''

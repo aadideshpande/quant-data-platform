@@ -2,16 +2,20 @@ from keybert import KeyBERT
 from DataModel import IntradayDataModel
 
 class DataTag:
-    def __init__(self, id, tag, dataset, metadata):
+    def __init__(self, id, tag, dataset, metadata, source, origin_date, description):
         self.id = id
         self.tag = tag
         self.dataset = dataset
         self.metadata = metadata
+        self.source = source
+        self.origin_date = origin_date
+        self.description = description
 
     @classmethod
     def from_row(cls, row):
         # Initialize an instance from a database row (tuple)
-        return cls(id=row[0], tag=row[1], dataset=row[2], metadata=row[3])
+        return cls(id=row[0], tag=row[1], dataset=row[2], metadata=row[3],
+                   source=row[4], origin_date=row[5], description=row[6])
 
     def __repr__(self):
         return f"DataRecord(id={self.id}, tag='{self.tag}', dataset='{self.dataset}')"
@@ -42,7 +46,8 @@ class DataCatalog:
         data_lake.cursor.execute('SELECT * FROM DataTags')
         rows = data_lake.cursor.fetchall()
         records = [DataTag.from_row(row) for row in rows]
-        unique_data_sets = set([record.dataset for record in records if search_term in record.metadata.strip("[]").split()])
+        unique_data_sets = set([record.dataset for record in records
+                                if search_term in record.metadata.strip("[]").split()])
         return unique_data_sets
 
     @staticmethod
