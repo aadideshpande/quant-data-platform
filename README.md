@@ -25,6 +25,7 @@ Implement the authentication mechanism for users to access proprietary data
 
 ### **Endpoints:** 
 
-| API   | Body Example |
-|-------|--------------|
-| POST /api/advanced_sentence_search/ | {"sentence": "analyze the prices of energy stocks during inflation"}         |
+| API                                 | Body Example                                                         | API Description                      |
+|-------------------------------------|----------------------------------------------------------------------|--------------------------------------|
+| POST /api/advanced_sentence_search/ | {"sentence": "analyze the prices of energy stocks during inflation"} | get a list of all relevant datasets  |
+| GET /api/metadata                                | - | get a list of all available datasets |                                   | 
