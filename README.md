@@ -37,3 +37,7 @@ Implement the authentication mechanism for users to access proprietary data
 | GET /api/datasets/{tag_name}         | -                                                                    | get the relevant datasets for a given tag                  |
 | GET /api/advanced_search             | -                                                                    |                                                            |
 
+
+                          
+  ![Data_Platform_Infra drawio](https://github.com/user-attachments/assets/b50be038-0275-4d83-be86-8801ae7abc58)
+
