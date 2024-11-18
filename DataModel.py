@@ -4,7 +4,9 @@ from datetime import datetime
 class BaseDataModel:
     def __init__(self, id, timestamp, symbol=None):
         self.id = id
-        self.timestamp = timestamp if isinstance(timestamp, datetime) else datetime.now()
+        if timestamp is not None:
+            timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+            self.timestamp = timestamp_dt if isinstance(timestamp_dt, datetime) else datetime.now()
         self.symbol = symbol
 
     def __repr__(self):
@@ -20,7 +22,12 @@ class BaseDataModel:
 
 class IntradayDataModel(BaseDataModel):
     def __init__(self, id, timestamp, price, volume, symbol):
-        super().__init__(id, timestamp, symbol)
+        super().__init__(id, symbol=symbol, timestamp=None)
+        try:
+            timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+        self.timestamp = timestamp_dt if isinstance(timestamp_dt, datetime) else datetime.now()
         self.price = price
         self.volume = volume
 
@@ -38,7 +45,12 @@ class IntradayDataModel(BaseDataModel):
 
 class NewsDataModel(BaseDataModel):
     def __init__(self, id, timestamp, headline, sentiment_score, relevance, source, symbol):
-        super().__init__(id, timestamp)
+        super().__init__(id, timestamp=None)
+        try:
+            timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+        self.timestamp = timestamp_dt if isinstance(timestamp_dt, datetime) else datetime.now()
         self.headline = headline
         self.sentiment_score = sentiment_score
         self.relevance = relevance

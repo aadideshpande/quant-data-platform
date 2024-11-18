@@ -51,8 +51,11 @@ def analyze_event_impact(news_event, intraday_data):
     event_window_start = event_time - timedelta(minutes=EVENT_WINDOW)
     event_window_end = event_time + timedelta(minutes=EVENT_WINDOW)
 
-    # Filter intraday data to get the event window
-    window_data = intraday_data.loc[event_window_start:event_window_end]
+    start_timestamp = pd.Timestamp(event_window_start)
+    end_timestamp = pd.Timestamp(event_window_end)
+
+    # Filter using conditional selection
+    window_data = intraday_data[(intraday_data.index >= start_timestamp) & (intraday_data.index <= end_timestamp)]
     if window_data.empty:
         return None  # No data in the event window
 

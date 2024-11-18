@@ -69,7 +69,7 @@ def init_db():
         ((datetime.now() - timedelta(days=5)).isoformat(), "Netflix stock drops after earnings report", -0.5, 0.65,
          "Yahoo Finance", "NFLX"),
         ((datetime.now() - timedelta(days=6)).isoformat(), "Meta faces privacy concerns", -0.4, 0.8, "The Guardian", "META"),
-        ((datetime.now() - timedelta(days=7)).isoformat(), "NVIDIA unveils new AI chip", 0.85, 0.9, "Reuters", "NVDA"),
+        ((datetime.now() - timedelta(days=7)).isoformat(), "AMD unveils new AI chip", 0.85, 0.9, "Reuters", "AMD"),
         ((datetime.now() - timedelta(days=8)).isoformat(), "Alibaba reports record sales on Singles' Day", 0.75, 0.85,
          "South China Morning Post", "BABA"),
         ((datetime.now() - timedelta(days=9)).isoformat(), "Samsung releases new Galaxy series", 0.6, 0.7, "BBC", "SSNLF"),
@@ -269,15 +269,17 @@ def init_db():
     symbol = "NVDA"
     news_data = [
         # Positive news (increases stock price)
-        (datetime.now() - timedelta(days=1, hours=2)).isoformat(), "NVIDIA announces breakthrough in AI technology",
+        (datetime.now().replace(hour=10, minute=30, second=50, microsecond=0)).isoformat(),
+        "NVIDIA announces breakthrough in AI technology",
         0.8, 0.9, "Reuters", symbol,
-        (datetime.now() - timedelta(days=3, hours=4)).isoformat(),
+        (datetime.now().replace(hour=11, minute=30, second=40, microsecond=0)).isoformat(),
         "NVIDIA partners with major tech firm to expand GPU production", 0.7, 0.85, "Bloomberg", symbol,
 
         # Negative news (decreases stock price)
-        (datetime.now() - timedelta(days=2, hours=1)).isoformat(), "NVIDIA faces regulatory scrutiny over data privacy",
+        (datetime.now().replace(hour=13, minute=30, second=0, microsecond=0)).isoformat(),
+        "NVIDIA faces regulatory scrutiny over data privacy",
         -0.6, 0.8, "TechCrunch", symbol,
-        (datetime.now() - timedelta(days=4, hours=3)).isoformat(),
+        (datetime.now().replace(hour=15, minute=30, second=0, microsecond=0)).isoformat(),
         "NVIDIA recalls certain GPU models due to overheating issues", -0.7, 0.75, "CNBC", symbol
     ]
 
@@ -299,35 +301,35 @@ def init_db():
     # Timestamps for the positive and negative news events
     news_events = {
         "positive": [
-            datetime.now() - timedelta(days=1, hours=2),
-            datetime.now() - timedelta(days=3, hours=4),
+            (datetime.now().replace(hour=10, minute=30, second=50, microsecond=0)),
+            (datetime.now().replace(hour=11, minute=30, second=40, microsecond=0)),
         ],
         "negative": [
-            datetime.now() - timedelta(days=2, hours=1),
-            datetime.now() - timedelta(days=4, hours=3),
+            (datetime.now().replace(hour=13, minute=30, second=0, microsecond=0)),
+            (datetime.now().replace(hour=15, minute=30, second=0, microsecond=0)),
         ]
     }
 
-    for day_offset in range(5):  # Last 5 trading days
-        day_start = datetime.now() - timedelta(days=day_offset)
-        day_start = day_start.replace(hour=9, minute=30, second=0, microsecond=0)  # Start of trading day
+    start_time = datetime.now().replace(hour=9, minute=30, second=0, microsecond=0)
+    end_time = start_time.replace(hour=16, minute=0)
+    current_time = start_time
+    while current_time <= end_time:
+        # Adjust price based on proximity to news events
+        if any(abs((current_time - event).total_seconds()) < 3600 for event in news_events["positive"]):
+            price = round(base_price + random.uniform(3, 6), 2)  # Positive impact
+        elif any(abs((current_time - event).total_seconds()) < 3600 for event in news_events["negative"]):
+            price = round(base_price - random.uniform(3, 6), 2)  # Negative impact
+        else:
+            price = round(base_price + random.uniform(-2, 2), 2)  # Normal fluctuation
 
-        for i in range(num_intraday_entries_per_day):
-            # Generate timestamp 5 minutes apart
-            timestamp = day_start + timedelta(minutes=i * 5)
+        # Generate random volume between 1000 and 5000
+        volume = random.randint(1000, 5000)
 
-            # Adjust price based on proximity to news events
-            if any(abs((timestamp - event).total_seconds()) < 3600 for event in news_events["positive"]):
-                price = round(base_price + random.uniform(3, 6), 2)  # Positive impact
-            elif any(abs((timestamp - event).total_seconds()) < 3600 for event in news_events["negative"]):
-                price = round(base_price - random.uniform(3, 6), 2)  # Negative impact
-            else:
-                price = round(base_price + random.uniform(-2, 2), 2)  # Normal fluctuation
+        # Append to intraday_data list
+        intraday_data.append((current_time.isoformat(), price, volume, symbol))
 
-            # Generate random volume
-            volume = random.randint(1000, 5000)
-
-            intraday_data.append((timestamp.isoformat(), price, volume, symbol))
+        # Move to the next minute
+        current_time += timedelta(minutes=5)
 
     # Insert the dummy intraday data into the IntradayData table
     cursor.executemany('''
