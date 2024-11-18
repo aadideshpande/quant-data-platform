@@ -24,7 +24,8 @@ def init_db():
                         headline TEXT,
                         sentiment_score REAL,
                         relevance REAL,
-                        source TEXT
+                        source TEXT,
+                        symbol TEXT
                     )''')
 
     cursor.execute('''
@@ -58,25 +59,26 @@ def init_db():
             ''', (timestamp, price, volume, symbol))
 
     news_data = [
-        (datetime.now().isoformat(), "Apple releases new product", 0.8, 0.9, "Reuters"),
-        ((datetime.now() - timedelta(days=1)).isoformat(), "Google faces antitrust lawsuit", -0.6, 0.85, "Bloomberg"),
+        (datetime.now().isoformat(), "Apple releases new product", 0.8, 0.9, "Reuters", "AAPL"),
+        ((datetime.now() - timedelta(days=1)).isoformat(), "Google faces antitrust lawsuit", -0.6, 0.85, "Bloomberg", "GOOG"),
         ((datetime.now() - timedelta(days=2)).isoformat(), "Tesla announces new self-driving update", 0.7, 0.75,
-         "TechCrunch"),
-        ((datetime.now() - timedelta(days=3)).isoformat(), "Amazon to expand drone delivery", 0.9, 0.8, "CNBC"),
+         "TechCrunch", "TSLA"),
+        ((datetime.now() - timedelta(days=3)).isoformat(), "Amazon to expand drone delivery", 0.9, 0.8, "CNBC", "AMZN"),
         ((datetime.now() - timedelta(days=4)).isoformat(), "Microsoft to acquire gaming company", 0.6, 0.7,
-         "Wall Street Journal"),
+         "Wall Street Journal", "MSFT"),
         ((datetime.now() - timedelta(days=5)).isoformat(), "Netflix stock drops after earnings report", -0.5, 0.65,
-         "Yahoo Finance"),
-        ((datetime.now() - timedelta(days=6)).isoformat(), "Meta faces privacy concerns", -0.4, 0.8, "The Guardian"),
-        ((datetime.now() - timedelta(days=7)).isoformat(), "NVIDIA unveils new AI chip", 0.85, 0.9, "Reuters"),
+         "Yahoo Finance", "NFLX"),
+        ((datetime.now() - timedelta(days=6)).isoformat(), "Meta faces privacy concerns", -0.4, 0.8, "The Guardian", "META"),
+        ((datetime.now() - timedelta(days=7)).isoformat(), "NVIDIA unveils new AI chip", 0.85, 0.9, "Reuters", "NVDA"),
         ((datetime.now() - timedelta(days=8)).isoformat(), "Alibaba reports record sales on Singles' Day", 0.75, 0.85,
-         "South China Morning Post"),
-        ((datetime.now() - timedelta(days=9)).isoformat(), "Samsung releases new Galaxy series", 0.6, 0.7, "BBC"),
+         "South China Morning Post", "BABA"),
+        ((datetime.now() - timedelta(days=9)).isoformat(), "Samsung releases new Galaxy series", 0.6, 0.7, "BBC", "SSNLF"),
     ]
 
     for news in news_data:
         cursor.execute(
-            "INSERT INTO NewsData (timestamp, headline, sentiment_score, relevance, source) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO NewsData (timestamp, headline, sentiment_score, relevance, source, symbol) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
             news
         )
 
@@ -262,6 +264,76 @@ def init_db():
             INSERT INTO RiskAssessments (client_id, risk_score, liquidity_ratio, leverage_ratio, credit_rating)
             VALUES (?, ?, ?, ?, ?)
         ''', (client_id, risk_score, liquidity_ratio, leverage_ratio, credit_rating))
+
+    # Generate dummy news data for NVIDIA with sentiment and relevance
+    symbol = "NVDA"
+    news_data = [
+        # Positive news (increases stock price)
+        (datetime.now() - timedelta(days=1, hours=2)).isoformat(), "NVIDIA announces breakthrough in AI technology",
+        0.8, 0.9, "Reuters", symbol,
+        (datetime.now() - timedelta(days=3, hours=4)).isoformat(),
+        "NVIDIA partners with major tech firm to expand GPU production", 0.7, 0.85, "Bloomberg", symbol,
+
+        # Negative news (decreases stock price)
+        (datetime.now() - timedelta(days=2, hours=1)).isoformat(), "NVIDIA faces regulatory scrutiny over data privacy",
+        -0.6, 0.8, "TechCrunch", symbol,
+        (datetime.now() - timedelta(days=4, hours=3)).isoformat(),
+        "NVIDIA recalls certain GPU models due to overheating issues", -0.7, 0.75, "CNBC", symbol
+    ]
+
+    # Insert the dummy news data into the NewsData table
+    cursor.executemany('''
+        INSERT INTO NewsData (timestamp, headline, sentiment_score, relevance, source, symbol)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', [(news_data[i], news_data[i + 1], news_data[i + 2], news_data[i + 3], news_data[i + 4], news_data[i + 5]) for i in
+          range(0, len(news_data), 6)])
+
+    # Generate dummy intraday data for the past 5 days for NVIDIA
+    num_intraday_entries_per_day = 20  # Number of 5-minute intervals per day (for simplicity)
+    symbol = "NVDA"
+    intraday_data = []
+
+    # Define a baseline price and simulate changes due to news sentiment
+    base_price = 280
+
+    # Timestamps for the positive and negative news events
+    news_events = {
+        "positive": [
+            datetime.now() - timedelta(days=1, hours=2),
+            datetime.now() - timedelta(days=3, hours=4),
+        ],
+        "negative": [
+            datetime.now() - timedelta(days=2, hours=1),
+            datetime.now() - timedelta(days=4, hours=3),
+        ]
+    }
+
+    for day_offset in range(5):  # Last 5 trading days
+        day_start = datetime.now() - timedelta(days=day_offset)
+        day_start = day_start.replace(hour=9, minute=30, second=0, microsecond=0)  # Start of trading day
+
+        for i in range(num_intraday_entries_per_day):
+            # Generate timestamp 5 minutes apart
+            timestamp = day_start + timedelta(minutes=i * 5)
+
+            # Adjust price based on proximity to news events
+            if any(abs((timestamp - event).total_seconds()) < 3600 for event in news_events["positive"]):
+                price = round(base_price + random.uniform(3, 6), 2)  # Positive impact
+            elif any(abs((timestamp - event).total_seconds()) < 3600 for event in news_events["negative"]):
+                price = round(base_price - random.uniform(3, 6), 2)  # Negative impact
+            else:
+                price = round(base_price + random.uniform(-2, 2), 2)  # Normal fluctuation
+
+            # Generate random volume
+            volume = random.randint(1000, 5000)
+
+            intraday_data.append((timestamp.isoformat(), price, volume, symbol))
+
+    # Insert the dummy intraday data into the IntradayData table
+    cursor.executemany('''
+        INSERT INTO IntradayData (timestamp, price, volume, symbol)
+        VALUES (?, ?, ?, ?)
+    ''', intraday_data)
 
     conn.commit()
     conn.close()

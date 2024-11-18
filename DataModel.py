@@ -37,17 +37,19 @@ class IntradayDataModel(BaseDataModel):
 
 
 class NewsDataModel(BaseDataModel):
-    def __init__(self, id, timestamp, headline, sentiment_score, relevance, source):
+    def __init__(self, id, timestamp, headline, sentiment_score, relevance, source, symbol):
         super().__init__(id, timestamp)
         self.headline = headline
         self.sentiment_score = sentiment_score
         self.relevance = relevance
         self.source = source
+        self.symbol = symbol
 
     @classmethod
     def from_row(cls, row):
         # Initialize an instance from a database row (tuple)
-        return cls(id=row[0], timestamp=row[1], headline=row[2], sentiment_score=row[3], relevance=row[4], source=row[5])
+        return cls(id=row[0], timestamp=row[1], headline=row[2],
+                   sentiment_score=row[3], relevance=row[4], source=row[5], symbol=row[6])
 
     def __repr__(self):
         return f"NewsDataModel(Timestamp: {self.timestamp}, Headline: {self.headline[:30]}, Sentiment: {self.sentiment_score})"

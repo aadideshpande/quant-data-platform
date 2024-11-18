@@ -55,10 +55,10 @@ def get_recent_news():
 
 
 @app.get('/api/news/sentiment_score_filter')
-def get_news_by_sentiment(sentiment_score_filter: float):
+def get_news_by_sentiment(sentiment_score_filter: float, symbol: str):
     data_catalog = DataCatalog()
     data_lake = DataLake()
-    return data_catalog.get_sentiment_scored_news(data_lake, sentiment_score_filter)
+    return data_catalog.get_sentiment_scored_news(data_lake, sentiment_score_filter, symbol)
 
 @app.get("/api/get-stock-data")
 async def get_stock_data(

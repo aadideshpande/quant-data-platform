@@ -26,11 +26,12 @@ class DataCatalog:
         pass
 
     @staticmethod
-    def get_sentiment_scored_news(data_lake, sentiment_score):
+    def get_sentiment_scored_news(data_lake, sentiment_score, symbol):
         data_lake.cursor.execute('SELECT * FROM NewsData')
         rows = data_lake.cursor.fetchall()
         records = [NewsDataModel.from_row(row) for row in rows]
-        symbol_filtered_data = set([record for record in records if record.sentiment_score >= sentiment_score])
+        symbol_filtered_data = set([record for record in records
+                                    if record.sentiment_score >= sentiment_score and record.symbol == symbol])
         return symbol_filtered_data
 
     @staticmethod
